@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  ghost:
+    image: ghost
+    container_name: blog
+    restart: always
+    networks:
+        - frontproxy_default
+        - default
+    environment:
+      - VIRTUAL_HOST=blog.andreaskrahl.local
+      - VIRTUAL_PORT=3001
+      - LETSENCRYPT_HOST=blog.andreaskrahl.local
+      - LETSENCRYPT_EMAIL=andi@radikrahl.com
+networks:
+    frontproxy_default:
+      external: true
