@@ -1,2 +1,3 @@
 traefik/letsencrypt/
 traefik/.env
+default.vhost/app/node_modules/*
