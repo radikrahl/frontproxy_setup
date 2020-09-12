@@ -25,15 +25,14 @@ services:
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.andkra.local`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
-      - "traefik.http.routers.dashboard.tls"
+      - "traefik.http.routers.dashboard.tls=true"
       - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
     # Enable the next line to enable a basic auth login prompt for the dashboard.
     #- "traefik.frontend.auth.basic=${BASIC_AUTH}"
 
     ports:
+      - "80:80"
       - "443:443"
-    # expose:
-    #   - 8080
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./traefik.toml:/traefik.toml"
