@@ -24,7 +24,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.andkra.local`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
-      - "traefik.http.routers.dashboard.tls.certresolver=myhttpchallenge"
+      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
       - "traefik.http.routers.dashboard.tls"
       - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
     # Enable the next line to enable a basic auth login prompt for the dashboard.
@@ -49,4 +49,4 @@ services:
       - "traefik.http.routers.whoami.rule=Host(`test.andkra.local`)"
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls=true"
-      - "traefik.http.routers.whoami.tls.certresolver=myhttpchallenge"
+      - "traefik.http.routers.whoami.tls.certresolver=myresolver"

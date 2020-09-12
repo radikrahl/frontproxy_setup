@@ -22,10 +22,13 @@ to = "websecure"
 [entryPoints.websecure]
 address = ":443"
 
-[certificatesResolvers.myhttpchallenge.acme]
+[certificatesResolvers.myresolver.acme]
 email = "andi@radikrahl.com"
-# caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
 storage = "/letsencrypt/acme.json"
-[certificatesResolvers.myhttpchallenge.acme.httpChallenge]
-# used during the challenge
-entryPoint = "web"
+
+[certificatesResolvers.myresolver.acme.tlsChallenge]
+
+# [certificatesResolvers.myhttpchallenge.acme.httpChallenge]
+# # used during the challenge
+# entryPoint = "web"
