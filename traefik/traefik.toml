@@ -1,0 +1,31 @@
+[log]
+level = "DEBUG"
+
+[accessLog]
+
+[api]
+dashboard = true
+insecure = true
+
+[providers.docker]
+exposedByDefault = false
+
+[entryPoints.web]
+address = ":80"
+
+[entryPoints.web.http]
+[entryPoints.web.http.redirections]
+[entryPoints.web.http.redirections.entryPoint]
+scheme = "https"
+to = "websecure"
+
+[entryPoints.websecure]
+address = ":443"
+
+[certificatesResolvers.myhttpchallenge.acme]
+email = "andi@radikrahl.com"
+# caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+storage = "/letsencrypt/acme.json"
+[certificatesResolvers.myhttpchallenge.acme.httpChallenge]
+# used during the challenge
+entryPoint = "web"

@@ -1,0 +1,52 @@
+version: "3"
+# See https://docs.docker.com/compose/overview/ for more information.
+
+# If you make changes to this file or any related files, apply them by
+# navigating to the directory that holds this file and run this as root:
+#   docker-compose down; docker-compose up -d
+
+networks:
+  webgateway:
+    driver: bridge
+
+volumes:
+  vol-db:
+
+services:
+  traefik:
+    # https://hub.docker.com/_/traefik/
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    networks:
+      - webgateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.andkra.local`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=myhttpchallenge"
+      - "traefik.http.routers.dashboard.tls"
+      - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+    # Enable the next line to enable a basic auth login prompt for the dashboard.
+    #- "traefik.frontend.auth.basic=${BASIC_AUTH}"
+
+    ports:
+      - "443:443"
+    # expose:
+    #   - 8080
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik.toml:/traefik.toml"
+      - "./letsencrypt:/letsencrypt"
+
+  whoami:
+    image: "containous/whoami"
+    container_name: "simple-service"
+    networks: 
+      - "webgateway"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`test.andkra.local`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.tls.certresolver=myhttpchallenge"
