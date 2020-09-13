@@ -1,0 +1,67 @@
+# v1.0.0
+version: "3"
+# See https://docs.docker.com/compose/overview/ for more information.
+
+# If you make changes to this file or any related files, apply them by
+# navigating to the directory that holds this file and run this as root:
+#   docker-compose down; docker-compose up -d
+
+networks:
+  webgateway:
+    driver: bridge
+
+volumes:
+  vol-db:
+
+services:
+  traefik:
+    # https://hub.docker.com/_/traefik/
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    networks:
+      - webgateway
+    command: 
+        - "--log.level=${LOG_LEVEL}"
+        - "--api.dashboard=true"
+        - "--api.insecure=true"
+        - "--providers.docker.exposedByDefault=true"
+        - "--entryPoints.web.address=:80"
+        - "--entryPoints.web.http.redirections.entryPoint.scheme=https"
+        - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
+        - "--entryPoints.websecure.address=:443"
+        - "--certificatesResolvers.myresolver.acme.email=${ACME_EMAIL}"
+        # enable if stagign certificate creation, otherwise default prod is taken
+        # - "--certificatesResolvers.myresolver.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory"
+        - "--certificatesResolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+        - "--certificatesResolvers.myresolver.acme.tlsChallenge"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`${URL_DASHBOARD}`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+    # Enable the next line to enable a basic auth login prompt for the dashboard.
+    #- "traefik.frontend.auth.basic=${BASIC_AUTH}"
+
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    # Since we cannot place environment variables in toml file, production file uses commands instead
+    #   - "./traefik.toml:/traefik.toml"
+      - "vol-db:/letsencrypt"
+
+  whoami:
+    image: "containous/whoami"
+    container_name: "test"
+    networks: 
+      - "webgateway"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`${URL_TEST}`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.tls.certresolver=myresolver"
