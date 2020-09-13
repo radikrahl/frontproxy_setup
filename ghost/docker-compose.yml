@@ -1,17 +1,23 @@
 version: '3.7'
+
+networks: 
+  traefik_webgateway:
+    external: true
+
 services:
   ghost:
-    image: ghost
-    container_name: blog
-    restart: always
+    # https://hub.docker.com/_/ghost/
+    image: ghost:3-alpine
+    restart: unless-stopped
     networks:
-        - frontproxy_default
-        - default
-    environment:
-      - VIRTUAL_HOST=blog.andreaskrahl.local
-      - VIRTUAL_PORT=3001
-      - LETSENCRYPT_HOST=blog.andreaskrahl.local
-      - LETSENCRYPT_EMAIL=andi@radikrahl.com
-networks:
-    frontproxy_default:
-      external: true
+      - traefik_webgateway
+    volumes:
+      - ./content:/var/lib/ghost/content
+      # - /configuration
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ghost.rule=Host(`blog.andkra.local`)"
+      - "traefik.http.routers.ghost.entrypoints=websecure"
+      - "traefik.http.routers.ghost.tls.certresolver=myresolver"
+      - "traefik.http.routers.ghost.tls=true"
+      - "traefik.http.services.ghost.loadbalancer.server.port=2368"
