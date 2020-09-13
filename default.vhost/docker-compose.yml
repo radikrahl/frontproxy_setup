@@ -1,8 +1,24 @@
-version: '3'
+version: '3.7'
+
+networks:
+  traefik_webgateway:
+    external: true
+
 services:
-  default.vhost:
-    container_name: default.vhost
+  web:
+    # image: hello-world
     build:
-      context: ./app
+      context: ./default
       dockerfile: Dockerfile
-    restart: always
+    restart: unless-stopped
+    networks:
+      - traefik_webgateway
+    # volumes:
+      # - /configuration
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ghost.rule=Host(`${DOMAIN_DEFAULT}`, `www.${DOMAIN_DEFAULT}`)"
+      - "traefik.http.routers.ghost.entrypoints=websecure"
+      - "traefik.http.routers.ghost.tls.certresolver=myresolver"
+      - "traefik.http.routers.ghost.tls=true"
+      - "traefik.http.services.ghost.loadbalancer.server.port=80"
