@@ -37,7 +37,7 @@ services:
         - "--certificatesResolvers.myresolver.acme.tlsChallenge"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`${URL_DASHBOARD}`)"
+      - "traefik.http.routers.dashboard.rule=Host(`${DOMAIN_DASHBOARD}`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
       - "traefik.http.routers.dashboard.tls=true"
@@ -61,7 +61,7 @@ services:
       - "webgateway"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`${URL_TEST}`)"
+      - "traefik.http.routers.whoami.rule=Host(`${DOMAIN_TEST}`)"
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls=true"
       - "traefik.http.routers.whoami.tls.certresolver=myresolver"

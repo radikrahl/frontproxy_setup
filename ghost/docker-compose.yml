@@ -1,6 +1,6 @@
 version: '3.7'
 
-networks: 
+networks:
   traefik_webgateway:
     external: true
 
@@ -16,7 +16,7 @@ services:
       # - /configuration
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ghost.rule=Host(`blog.andkra.local`)"
+      - "traefik.http.routers.ghost.rule=Host(`${DOMAIN_BLOG}`)"
       - "traefik.http.routers.ghost.entrypoints=websecure"
       - "traefik.http.routers.ghost.tls.certresolver=myresolver"
       - "traefik.http.routers.ghost.tls=true"

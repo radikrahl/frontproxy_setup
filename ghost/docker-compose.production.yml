@@ -1,0 +1,55 @@
+version: '3.7'
+
+networks:
+  backend:
+  traefik_webgateway:
+    external: true
+
+volumes:
+  vol-db:
+    
+services:
+  ghost:
+    # https://hub.docker.com/_/ghost/
+    image: ghost:3-alpine
+    container_name: ghost
+    restart: unless-stopped
+    networks:
+      - traefik_webgateway
+      - backend
+    volumes:
+      - ./content:/var/lib/ghost/content
+      # - /configuration
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ghost.rule=Host(`${DOMAIN_BLOG}`)"
+      - "traefik.http.routers.ghost.entrypoints=websecure"
+      - "traefik.http.routers.ghost.tls.certresolver=myresolver"
+      - "traefik.http.routers.ghost.tls=true"
+      - "traefik.http.services.ghost.loadbalancer.server.port=2368"
+      
+    environment:
+      url: ${URL_BLOG}
+      database__client: mysql
+      database__connection__host: db
+      database__connection__database: ${DB_NAME}
+      database__connection__user: ${DB_USER}
+      database__connection__password: ${DB_PASSWORD}
+  db:
+    # https://hub.docker.com/_/mariadb/
+    image: mariadb:10.3
+    command: --max_allowed_packet=256M
+    restart: unless-stopped
+    networks:
+      - backend
+    volumes:
+      # Ensure the database persists between restarts.
+      - vol-db:/var/lib/mysql
+    expose: 
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    
