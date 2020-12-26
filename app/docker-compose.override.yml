@@ -1,0 +1,18 @@
+version: "3.7"
+
+networks:
+  traefik_webgateway:
+    external: true
+
+services:
+  web:
+    image: radikrahl/andreaskrahl.de
+    networks:
+      - traefik_webgateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.default.rule=Host(`${DOMAIN_DEFAULT}`, `www.${DOMAIN_DEFAULT}`)"
+      - "traefik.http.routers.default.entrypoints=websecure"
+      - "traefik.http.routers.default.tls.certresolver=myresolver"
+      - "traefik.http.routers.default.tls=true"
+      - "traefik.http.services.default.loadbalancer.server.port=80"

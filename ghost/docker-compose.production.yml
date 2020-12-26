@@ -1,7 +1,7 @@
 version: '3.7'
 
 networks:
-  backend:
+  db_backend:
   traefik_webgateway:
     external: true
 
@@ -14,9 +14,11 @@ services:
     image: ghost:3-alpine
     container_name: ghost
     restart: unless-stopped
+    depends_on: 
+      - db
     networks:
       - traefik_webgateway
-      - backend
+      - db_backend
     volumes:
       - ./content:/var/lib/ghost/content
       # - /configuration
@@ -28,7 +30,6 @@ services:
       - "traefik.http.routers.ghost.tls=true"
       - "traefik.http.services.ghost.loadbalancer.server.port=2368"
       - "traefik.docker.network=traefik_webgateway"
-      
     environment:
       url: ${URL_BLOG}
       database__client: mysql
@@ -42,7 +43,7 @@ services:
     command: --max_allowed_packet=256M
     restart: unless-stopped
     networks:
-      - backend
+      - db_backend
     volumes:
       # Ensure the database persists between restarts.
       - vol-db:/var/lib/mysql

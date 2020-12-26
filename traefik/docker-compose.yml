@@ -20,16 +20,41 @@ services:
     restart: unless-stopped
     networks:
       - webgateway
+    command:
+      - "--log.level=${LOG_LEVEL}"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      
+      ### configure provider as docker ###
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.network=webgateway"
+      
+      ### configure global redirect to https ###
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entryPoints.websecure.address=:443"
+
+      ### configure letsencrypt automatic certificate creation ###
+      - "--certificatesResolvers.myresolver.acme.email=${ACME_EMAIL}"
+      # enable if stagign certificate creation, otherwise default prod is taken
+      - "--certificatesResolvers.myresolver.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesResolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesResolvers.myresolver.acme.tlsChallenge"
+
     labels:
+      ### Configure Dashboard ###
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`${DOMAIN_DASHBOARD}`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
       - "traefik.http.routers.dashboard.tls=true"
       - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
-    # Enable the next line to enable a basic auth login prompt for the dashboard.
-    #- "traefik.frontend.auth.basic=${BASIC_AUTH}"
-
+      # Enable the next line to enable a basic auth login prompt for the dashboard.
+      # - "traefik.frontend.auth.basic=${BASIC_AUTH}"
+    env_file:
+      - local_env
     ports:
       - "80:80"
       - "443:443"
@@ -38,10 +63,11 @@ services:
       - "./traefik.toml:/traefik.toml"
       - "vol:/letsencrypt"
 
+  ### Test Service ###
   whoami:
     image: "containous/whoami"
     container_name: "simple-service"
-    networks: 
+    networks:
       - "webgateway"
     labels:
       - "traefik.enable=true"
@@ -49,3 +75,4 @@ services:
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls=true"
       - "traefik.http.routers.whoami.tls.certresolver=myresolver"
+    env_file: local_env
