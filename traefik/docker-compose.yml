@@ -15,7 +15,7 @@ volumes:
 services:
   traefik:
     # https://hub.docker.com/_/traefik/
-    image: traefik:latest
+    image: traefik:2.4
     container_name: traefik
     restart: unless-stopped
     networks:
@@ -54,7 +54,7 @@ services:
       # Enable the next line to enable a basic auth login prompt for the dashboard.
       # - "traefik.frontend.auth.basic=${BASIC_AUTH}"
     env_file:
-      - local_env
+      - .env
     ports:
       - "80:80"
       - "443:443"
@@ -75,4 +75,4 @@ services:
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls=true"
       - "traefik.http.routers.whoami.tls.certresolver=myresolver"
-    env_file: local_env
+    env_file: .env

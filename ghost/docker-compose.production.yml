@@ -11,7 +11,7 @@ volumes:
 services:
   ghost:
     # https://hub.docker.com/_/ghost/
-    image: ghost:3-alpine
+    image: ghost:4-alpine
     container_name: ghost
     restart: unless-stopped
     depends_on: 
@@ -39,7 +39,7 @@ services:
       database__connection__password: ${DB_PASSWORD}
   db:
     # https://hub.docker.com/_/mariadb/
-    image: mariadb:10.3
+    image: mariadb:10.5
     command: --max_allowed_packet=256M
     restart: unless-stopped
     networks:

@@ -14,7 +14,7 @@ volumes:
 
 services:
   app:
-    image: nextcloud
+    image: nextcloud:21.0.1
     container_name: nextcloud
     networks:
       - traefik_webgateway
