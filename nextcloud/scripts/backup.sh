@@ -4,6 +4,7 @@ set -x
 ### Main config ###
 currentDate=$(date +"%Y%m%d%H%M%S")
 backupAge="14"
+echoDate=$(date +"%m/%d/%Y %H:%M")
 
 ## File Names ##
 fileNameConfig="config_${currentDate}.tar.gz"
@@ -30,7 +31,7 @@ DEST_PATH="${backupdir}/"
 
 ## Check for root ##
 if [ "$(id -u)" != "0" ]; then
-    errorecho "ERROR: This script has to be run as root!"
+    errorecho "${echoDate}: ERROR: This script has to be run as root!"
     exit 1
 fi
 
@@ -38,14 +39,14 @@ fi
 if [ ! -d "${backupdir}" ]; then
     mkdir -p "${backupdir}"
 else
-    errorecho "ERROR: The backup directory ${backupdir} already exists!"
+    errorecho "${echoDate}: ERROR: The backup directory ${backupdir} already exists!"
     exit 1
 fi
 
 ### Set maintenance mode ###
-echo "Enabling maintenance mode"
+echo "${echoDate}: Enabling maintenance mode"
 docker exec -u ${nextcloudServerUser} ${dockerapp} php occ maintenance:mode --on
-echo "Status: OK"
+echo "${echoDate}: Status: OK"
 
 ### Copy and tar files from container to host ###
 docker exec ${dockerapp} mkdir "/backup"
@@ -64,16 +65,16 @@ cleanup() {
     del=$(date --date="${backupAge} days ago" +%Y%m%d%H%M%S)
     path="${backupMainDir}"
     for i in `find ${backupMainDir} -type d -name "2*"`; do
-        (($del > $(basename $i))) && rm -rf $i || echo "no delete"
+        (($del > $(basename $i))) && (rm -rf $i && echo "${echoDate}: Deleted ${i}") || echo "${echoDate}: no delete"
     done
 }
 
-echo "Delete files that exist longer than " "${backupAge}" "days."
+echo "${echoDate}: Delete files that exist longer than" "${backupAge}" "days."
 cleanup
-echo "Delete empy folder"
+echo "${echoDate}: Delete empty folder"
 find "${backupMainDir}" -type d -empty -delete
 
 
-echo "Disable maintenance mode"
+echo "${echoDate}: Disable maintenance mode"
 docker exec -u ${nextcloudServerUser} ${dockerapp} php occ maintenance:mode --off
-echo "Status: OK"
+echo "${echoDate}: Status: OK"
