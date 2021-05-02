@@ -50,12 +50,13 @@ echo "${echoDate}: Status: OK"
 
 ### Copy and tar files from container to host ###
 docker exec ${dockerapp} mkdir "/backup"
-docker exec ${dockerapp} tar -czvf "/backup/${fileNameConfig}" "${SRC_PATH}/config"
-docker exec ${dockerapp} tar -czvf "/backup/${fileNameData}" "${SRC_PATH}/data"
-docker exec ${dockerapp} tar -czvf "/backup/${fileNameThemes}" "${SRC_PATH}/themes"
-docker exec ${dockerapp} tar -czvf "/backup/${fileNameCustomApps}" "${SRC_PATH}/custom_apps"
+docker exec ${dockerapp} tar -czf "/backup/${fileNameConfig}" "${SRC_PATH}/config"
+docker exec ${dockerapp} tar -czf "/backup/${fileNameData}" "${SRC_PATH}/data"
+docker exec ${dockerapp} tar -czf "/backup/${fileNameThemes}" "${SRC_PATH}/themes"
+docker exec ${dockerapp} tar -czf "/backup/${fileNameCustomApps}" "${SRC_PATH}/custom_apps"
 docker cp "${dockerapp}:/backup/" ${DEST_PATH}
 docker exec ${dockerapp} rm -r -f "/backup"
+echo "${echoDate}: Successfully created tar files"
 
 ### Create SQL dumpfile ###
 docker exec ${dockerdb} mysqldump --single-transaction -h ${dockerdbHost} -u ${dbUser} --password=${dbPassword} ${nextcloudDatabase} >"${DEST_PATH}/nextcloud-sqlbkp_${currentDate}.bak"
@@ -65,7 +66,7 @@ cleanup() {
     del=$(date --date="${backupAge} days ago" +%Y%m%d%H%M%S)
     path="${backupMainDir}"
     for i in `find ${backupMainDir} -type d -name "2*"`; do
-        (($del > $(basename $i))) && (rm -rf $i && echo "${echoDate}: Deleted ${i}") || echo "${echoDate}: no delete"
+        (($del > $(basename $i))) && (rm -rf $i && echo "${echoDate}: Deleted ${i}") || echo "${echoDate}: No delete"
     done
 }
 
