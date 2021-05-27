@@ -16,15 +16,13 @@ volumes:
 services:
   traefik:
     # https://hub.docker.com/_/traefik/
-    image: traefik:latest
+    image: traefik:2.4
     container_name: traefik
     restart: unless-stopped
     networks:
       - webgateway
     command:
       - "--log.level=${LOG_LEVEL}"
-      # - "--api.dashboard=true"
-      # - "--api.insecure=true"
       - "--providers.docker.exposedByDefault=true"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.web.http.redirections.entryPoint.scheme=https"

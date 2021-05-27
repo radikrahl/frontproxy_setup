@@ -45,7 +45,7 @@ services:
     # command: sudo -u www-data sh -c "php occ --no-warnings config:system:set allow_local_remote_servers --value=true"
   onlyoffice-document-server:
     container_name: onlyoffice-document-server
-    image: onlyoffice/documentserver:latest
+    image: onlyoffice/documentserver:6.2
     networks:
       - traefik_webgateway
     stdin_open: true
@@ -64,12 +64,12 @@ services:
       ## Middleware definition
       # Headers for onlyoffice, https://github.com/ONLYOFFICE/onlyoffice-nextcloud/issues/151
       - "traefik.http.middlewares.onlyoffice-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
-      - "traefik.http.middlewares.onlyoffice-headers.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.onlyoffice-headers.headers.accessControlAllowOriginList=`https://${DOMAIN_NEXTCLOUD}`"
     volumes:
       - document_data:/var/www/onlyoffice/Data
       - document_log:/var/log/onlyoffice
   db:
-    image: mariadb
+    image: mariadb:10
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     restart: always
     volumes:
