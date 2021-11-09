@@ -1,7 +1,10 @@
 # frontproxy_setup
-Currently setup with the help of jwilder/nginx-proxy
+setup with [traefik.io](https://traefik.io)
 
+# Setup
+Create `.env` File with the approptiate variables given in the respective docker-compose file.
 
-
-#244942 green
-#9C234E purple
+```
+docker-compose -f traefik/docker-compose.production.yml up -d
+docker-compose -f wordpress/docker-compose.yml up -d
+```
