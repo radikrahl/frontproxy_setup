@@ -1,3 +1,4 @@
 default.vhost/app/node_modules/*
 ghost/content/*
+bgk/*
 *.env
